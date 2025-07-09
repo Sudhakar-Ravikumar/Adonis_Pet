@@ -1,11 +1,12 @@
 import router from '@adonisjs/core/services/router'
-import type { HttpContext } from '@adonisjs/core/http'
+import { HttpContext } from '@adonisjs/core/http'
 
 import PetsController from '#controllers/pets_controller'
 import CustomersController from '#controllers/customers_controller'
 import SalesController from '#controllers/sales_controller'
 
 /* --------------------  PET ROUTES -------------------- */
+router.get('/', [PetsController, 'hello'])
 router.get('/pets', [PetsController, 'index'])         // Get all pets
 router.post('/pets', [PetsController, 'store'])        // Add new pet
 router.get('/pets/:id', [PetsController, 'show']).where('id', /^[0-9]+$/)      // Get one pet by ID

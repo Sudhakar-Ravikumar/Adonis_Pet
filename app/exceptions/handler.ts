@@ -12,9 +12,19 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * The method is used for handling errors and returning
    * response to the client
    */
-  async handle(error: unknown, ctx: HttpContext) {
-    return super.handle(error, ctx)
+  // 🧠 app/Exceptions/Handler.ts (global)
+public async handle(error: any, ctx: HttpContext) {
+  if (error.message === 'Pet not found') {
+    return ctx.response.status(404).json({ message: 'Pet not found' })
   }
+  return ctx.response.status(error.status || 500).json({
+    message: error.message || 'Internal Server Error',
+  })
+}
+
+  // async handle(error: unknown, ctx: HttpContext) {
+  //   return super.handle(error, ctx)
+  // }
 
   /**
    * The method is used to report error to the logging service or
@@ -25,7 +35,9 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   async report(error: unknown, ctx: HttpContext) {
     return super.report(error, ctx)
   }
+  
 }
+//-----------------------------------------------
 
 
 // import HttpContext from '@adonisjs/core/http'

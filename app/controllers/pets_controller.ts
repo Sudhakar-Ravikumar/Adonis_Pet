@@ -1,5 +1,5 @@
 // ✅ Controller - PetsController.ts
-import type { HttpContext } from '@adonisjs/core/http'
+import { HttpContext } from '@adonisjs/core/http'
 import {
   storePetValidator,
   validatePut,
@@ -8,12 +8,14 @@ import {
   validateDestroy
 } from '#validators/pet_validator'
 // import { PetRepo } from '#app/repositories/pet_repo'
-import {PetRepo} from '#Repository/pet_repo'
+// import {PetRepo} from '../app/Repository/pet_repo.ts'
+import PetRepo from '../Repository/pet_repo.js' // 👈 even though it's a .ts file!
+// import PetRepo from '#repositories/pet_repo'
 
 export default class PetsController {
   async index({}: HttpContext) {
     try {
-      return await PetRepo.index()
+      return await PetRepo.index()    
     } catch (error) {
       throw error
     }
@@ -37,10 +39,14 @@ export default class PetsController {
     }
   }
 
+  
+
   async update({ request, params }: HttpContext) {
     try {
+      // console.log("Request",request)
       const id = Number(params.id)
-      const data = request.all()
+      const data = request.body()// Use request.body().all() to get the full request body
+      console.log("data controller", data)
       const validator = request.method() === 'PATCH' ? await validatePatch(id, data) : await validatePut(id, data)
       const validated = await request.validateUsing(validator)
       return await PetRepo.update(id, validated)
@@ -57,4 +63,11 @@ export default class PetsController {
       throw error
     }
   }
+
+  async hello ({}: HttpContext)
+  {
+    return "helllloooo"
+  }
 }
+
+

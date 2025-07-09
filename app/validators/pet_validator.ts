@@ -15,13 +15,19 @@ const messages = {
   'buy_date.date': 'Purchase date must be a valid date.',
 
   'buy_price.number': 'Price must be a number.',
-  'buy_price.range': 'Price must be between 1 and 100000.'
+  'buy_price.range': 'Price must be between 1 and 100000.',
+  
 }
 
+export const storeMessages = messages 
+
 // GET /pets/:id => only check if pet exists
+// export async function validateShow(id: number) {
+//   const pet = await Pet.find(id)
+//   if (!pet) throw new Error('Pet not found')
+// }
 export async function validateShow(id: number) {
-  const pet = await Pet.find(id)
-  if (!pet) throw new Error('Pet not found')
+  await Pet.findOrFail(id) // This will throw ModelNotFoundException automatically
 }
 
 
@@ -36,12 +42,20 @@ export const storePetValidator = vine.compile(
   })
 )
 
-export const storeMessages = messages
+// What is storePetValidator?
+// It is an object — more specifically, a compiled schema object created by VineJS.
+
+//If minlength is not given , It will accept all but wont accept empty , But accept space
+
 
 // PUT /pets/:id => all fields required, check if pet exists
 export async function validatePut(id: number, data: any) {
-  const pet = await Pet.find(id)
-  if (!pet) throw new Error('Pet not found')
+  // const pet = await Pet.find(id)
+  // if (!pet) throw new Error('Pet not found')
+  console.log("data:", data)
+  await Pet.findOrFail(id) // Auto error if not found
+
+  console.log(Pet)
 
   const requiredFields = ['b_name', 'o_country', 'buy_date', 'buy_price']
   const missingFields = requiredFields.filter(field => !(field in data))
@@ -52,8 +66,9 @@ export async function validatePut(id: number, data: any) {
 
 // PATCH /pets/:id => optional fields, check keys match schema
 export async function validatePatch(id: number, data: any) {
-  const pet = await Pet.find(id)
-  if (!pet) throw new Error('Pet not found')
+  // const pet = await Pet.find(id)
+  // if (!pet) throw new Error('Pet not found')
+  await Pet.findOrFail(id) // Auto error if not found
 
   const validFields = ['b_name', 'o_country', 'buy_date', 'buy_price']
   const extraFields = Object.keys(data).filter((key) => !validFields.includes(key))
@@ -70,6 +85,7 @@ export async function validatePatch(id: number, data: any) {
 }
 // DELETE /pets/:id => only check if pet exists
 export async function validateDestroy(id: number) {
-  const pet = await Pet.find(id)
-  if (!pet) throw new Error('Pet not found')
+  // const pet = await Pet.find(id)
+  // if (!pet) throw new Error('Pet not found')
+   await Pet.findOrFail(id) // Auto error if not found
 }

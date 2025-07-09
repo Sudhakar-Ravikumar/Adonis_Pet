@@ -1,5 +1,5 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
-import { DateTime } from 'luxon/src/luxon.js'
+import { DateTime } from 'luxon'
 
 export default class Sale extends BaseModel {
   @column({ isPrimary: true })

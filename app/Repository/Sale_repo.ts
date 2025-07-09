@@ -1,5 +1,4 @@
 import Sale from '#models/sale'
-import { Request, Response } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
 export default class SaleRepo {
@@ -7,45 +6,51 @@ export default class SaleRepo {
     return await Sale.all()
   }
 
-  static async store(request: Request) {
-    const data = request.only(['c_id', 'p_id', 'sale_price'])
-    return await Sale.create({
-      ...data,
-      sale_date: DateTime.now(),
-    })
-  }
+  static async store(data: any) {
+    const dateInput = data.sale_date
 
-  static async show(idParam: string, response: Response) {
-    const id = Number(idParam)
-    if (isNaN(id) || id <= 0) {
-      return response.status(400).json({ error: 'Invalid sale ID' })
+    // Convert from JS Date (or string) to Luxon DateTime
+    const parsedDate = DateTime.fromJSDate(new Date(dateInput))
+    if (!parsedDate.isValid) {
+      throw new Error(`Invalid sale_date: ${dateInput}`)
     }
 
-    const sale = await Sale.find(id)
-    return sale ?? { message: 'Sale not found' }
+    data.sale_date = parsedDate
+    return await Sale.create(data)
   }
 
-  static async update(idParam: string, request: Request, response: Response) {
-    const id = Number(idParam)
-    const sale = await Sale.find(id)
-    if (!sale) {
-      return response.status(404).json({ message: 'Sale not found' })
+  static async show(id: number) {
+    return await Sale.findOrFail(id)
+  }
+
+  static async update(id: number, data: any) {
+    const sale = await Sale.findOrFail(id)
+
+    if ('sale_date' in data) {
+      const dateInput = data.sale_date
+      const parsedDate = DateTime.fromJSDate(new Date(dateInput))
+      if (!parsedDate.isValid) {
+        throw new Error(`Invalid sale_date: ${dateInput}`)
+      }
+      data.sale_date = parsedDate
     }
 
-    const data = request.only(['c_id', 'p_id', 'sale_price'])
     sale.merge(data)
     await sale.save()
     return sale
   }
 
-  static async destroy(idParam: string, response: Response) {
-    const id = Number(idParam)
-    const sale = await Sale.find(id)
-    if (!sale) {
-      return response.status(404).json({ message: 'Sale not found' })
-    }
-
+  static async destroy(id: number) {
+    const sale = await Sale.findOrFail(id)
     await sale.delete()
     return { message: 'Sale deleted successfully' }
   }
 }
+
+
+// {
+//   "c_id": 1,
+//   "p_id": 1,
+//   "sale_date": "2025-07-08",
+//   "sale_price": 12000
+// }
